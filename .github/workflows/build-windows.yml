@@ -18,27 +18,29 @@ jobs:
     # --- 修改点 1: 更稳健的 Qt 安装步骤 ---
     - name: Setup Qt (via aqtinstall)
       run: |
-        # 1. 安装/升级 aqtinstall
+        # 1. 安装 aqtinstall
         python -m pip install --upgrade pip
         pip install aqtinstall
         
-        # 2. 设置清华镜像源环境变量
-        $env:AQT_BASE_URL = "https://mirrors.tuna.tsinghua.edu.cn/qt"
+        # 2. 【关键修改】切换为中科大 (USTC) 镜像源
+        $env:AQT_BASE_URL = "https://mirrors.ustc.edu.cn/qtproject"
         
-        # 3. 安装 Qt 6.8.1 (MSVC 2022 64位)
-        # 【关键修改】：移除了 --modules qtstatemachine 参数
-        python -m aqt install-qt windows desktop 6.8.1 win64_msvc2022_64 --base https://mirrors.tuna.tsinghua.edu.cn/qt
+        # 3. 安装 Qt 6.8.1
+        # 注意：我们只安装核心库，不指定 --modules，让 aqt 自动安装必须的 qtbase
+        # 如果之前是因为 qttools 报错，这里不显式请求它通常能绕过
+        python -m aqt install-qt windows desktop 6.8.1 win64_msvc2022_64 --base https://mirrors.ustc.edu.cn/qtproject
         
         # 4. 设置环境变量
         $QtDir = "C:\Qt\6.8.1\msvc2022_64"
         echo "$QtDir\bin" >> $env:GITHUB_PATH
         echo "CMAKE_PREFIX_PATH=$QtDir" >> $env:GITHUB_ENV
         
-        # 5. 验证安装
+        # 5. 验证安装 (只检查 qmake 和 core 库，不检查 tools)
         if (!(Test-Path "$QtDir\bin\qmake.exe")) {
-            Write-Error "Qt installation failed or path incorrect!"
+            Write-Error "Qt installation failed!"
             exit 1
         }
+        Write-Host "Qt installed successfully to $QtDir"
       shell: pwsh
 
     - name: Setup MSVC
