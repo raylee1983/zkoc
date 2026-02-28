@@ -23,32 +23,31 @@ jobs:
         pip install aqtinstall
         
         $MIRROR = "https://mirrors.aliyun.com/qt"
-        Write-Host "Installing Qt 6.5.3 (MSVC 2019 64-bit)..."
+        Write-Host "Installing Qt 6.5.3 + StateMachine..."
         
-        # 安装到当前工作目录 (GitHub Actions 默认行为)
-        python -m aqt install-qt windows desktop 6.5.3 win64_msvc2019_64 --base $MIRROR
+        # 【关键】尝试重新安装 qtstatemachine 模块
+        # 如果阿里云源正常，这次应该能成功
+        python -m aqt install-qt windows desktop 6.5.3 win64_msvc2019_64 --modules qtstatemachine --base $MIRROR
         
-        # 【关键修复】使用相对路径或环境变量构建正确路径
-        # GitHub Actions 的工作目录通常在 D:\a\RepoName\RepoName\
-        # aqt 会在这里创建一个以版本号命名的文件夹
         $BaseDir = Get-Location
         $QtDir = Join-Path $BaseDir "6.5.3\msvc2019_64"
         
-        Write-Host "Qt installed at: $QtDir"
-        
-        # 验证路径是否存在
         if (!(Test-Path "$QtDir\bin\qmake.exe")) {
-            Write-Error "Qt installation failed! qmake not found at $QtDir\bin\qmake.exe"
-            # 调试信息：列出当前目录看看
+            Write-Error "Qt installation failed!"
             Get-ChildItem $BaseDir
             exit 1
         }
         
-        # 设置环境变量 (使用完整绝对路径)
+        # 验证 StateMachine 是否安装
+        if (!(Test-Path "$QtDir\lib\cmake\Qt6StateMachine")) {
+            Write-Warning "QtStateMachine module not found! Build might fail."
+            # 如果确实没找到，我们继续，看 CMake 能否处理，或者稍后在 CMake 参数中忽略
+        } else {
+            Write-Host "QtStateMachine found."
+        }
+
         echo "$QtDir\bin" >> $env:GITHUB_PATH
         echo "CMAKE_PREFIX_PATH=$QtDir" >> $env:GITHUB_ENV
-        
-        Write-Host "Qt environment configured successfully."
       shell: pwsh
 
     # 3. 配置 MSVC 编译器 (使用 v142 工具集匹配 Qt 6.5.3)
@@ -58,29 +57,45 @@ jobs:
     # 4. 安装依赖 (OpenConnect, Stoken) 并配置 CMake
     - name: Install Dependencies & Configure CMake
       run: |
-        Write-Host "Cloning vcpkg..."
-        git clone https://github.com/microsoft/vcpkg.git
+        # --- 1. 设置 vcpkg ---
+        Write-Host "Setting up vcpkg..."
+        if (!(Test-Path "vcpkg")) {
+            git clone https://github.com/microsoft/vcpkg.git
+        }
         cd vcpkg
         .\bootstrap-vcpkg.bat -disableMetrics
+        .\vcpkg.exe update # 强制更新 ports 树
         
-        Write-Host "Installing openconnect and stoken..."
-        .\vcpkg.exe install openconnect:x64-windows stoken:x64-windows zlib:x64-windows openssl:x64-windows
+        # --- 2. 安装依赖 ---
+        Write-Host "Installing openconnect, stoken..."
+        # 尝试安装 openconnect。如果报错不存在，尝试搜索正确包名
+        # 注意：vcpkg 包名通常是全小写
+        if (!(.\vcpkg.exe search openconnect | Select-String "openconnect")) {
+            Write-Error "Package openconnect not found in vcpkg. Trying alternative..."
+            # 如果真的没有，可能需要手动编译或寻找替代源。
+            # 但通常是因为 search 需要联网更新，上面 update 过了应该有。
+            # 这里我们强制安装，如果失败再报错
+        }
+        
+        .\vcpkg.exe install openconnect:x64-windows stoken:x64-windows zlib:x64-windows openssl:x64-windows --recurse
         
         cd ..
         
-        # 【关键修改】获取正确的 Qt 路径 (基于当前工作目录)
+        # --- 3. 配置 CMake ---
         $BaseDir = Get-Location
         $QtDir = Join-Path $BaseDir "6.5.3\msvc2019_64"
         
-        Write-Host "Configuring CMake with VS2022 generator..."
+        Write-Host "Configuring CMake..."
         
-        # 使用 Visual Studio 17 2022 生成器
+        # 添加参数：如果 StateMachine 真的找不到，尝试让 CMake 继续 (如果项目允许)
+        # 但最好还是指望上面安装成功了。
         cmake -S . -B build `
           -G "Visual Studio 17 2022" `
           -A x64 `
           -DCMAKE_BUILD_TYPE=Release `
           -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" `
-          -DCMAKE_PREFIX_PATH="$QtDir"
+          -DCMAKE_PREFIX_PATH="$QtDir" `
+          -DQT_DEBUG_FIND_PACKAGE=OFF # 关闭调试输出，保持日志干净
           
       shell: pwsh
 
