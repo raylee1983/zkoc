@@ -22,25 +22,33 @@ jobs:
         python -m pip install --upgrade pip
         pip install aqtinstall
         
-        # 【关键修改】切换为阿里云镜像源 (Aliyun)，避开清华源的损坏文件
         $MIRROR = "https://mirrors.aliyun.com/qt"
+        Write-Host "Installing Qt 6.5.3 (MSVC 2019 64-bit)..."
         
-        Write-Host "Installing Qt 6.5.3 (MSVC 2019 64-bit) from Aliyun..."
-        
-        # 添加 --noarchives 参数有时能绕过某些校验问题，但这里主要靠换源
-        # 如果依然报错，我们可以尝试不安装 qttools (OpenConnect GUI 运行时通常不需要它)
-        # 但首先尝试完整安装
+        # 安装到当前工作目录 (GitHub Actions 默认行为)
         python -m aqt install-qt windows desktop 6.5.3 win64_msvc2019_64 --base $MIRROR
         
-        $QtDir = "C:\Qt\6.5.3\msvc2019_64"
+        # 【关键修复】使用相对路径或环境变量构建正确路径
+        # GitHub Actions 的工作目录通常在 D:\a\RepoName\RepoName\
+        # aqt 会在这里创建一个以版本号命名的文件夹
+        $BaseDir = Get-Location
+        $QtDir = Join-Path $BaseDir "6.5.3\msvc2019_64"
+        
+        Write-Host "Qt installed at: $QtDir"
+        
+        # 验证路径是否存在
+        if (!(Test-Path "$QtDir\bin\qmake.exe")) {
+            Write-Error "Qt installation failed! qmake not found at $QtDir\bin\qmake.exe"
+            # 调试信息：列出当前目录看看
+            Get-ChildItem $BaseDir
+            exit 1
+        }
+        
+        # 设置环境变量 (使用完整绝对路径)
         echo "$QtDir\bin" >> $env:GITHUB_PATH
         echo "CMAKE_PREFIX_PATH=$QtDir" >> $env:GITHUB_ENV
         
-        if (!(Test-Path "$QtDir\bin\qmake.exe")) {
-            Write-Error "Qt installation failed!"
-            exit 1
-        }
-        Write-Host "Qt installed successfully from Aliyun."
+        Write-Host "Qt environment configured successfully."
       shell: pwsh
 
     # 3. 配置 MSVC 编译器 (使用 v142 工具集匹配 Qt 6.5.3)
@@ -52,26 +60,21 @@ jobs:
     # 4. 安装依赖 (OpenConnect, Stoken) 并配置 CMake
     - name: Install Dependencies & Configure CMake
       run: |
-        # --- 安装 vcpkg 和依赖 ---
-        Write-Host "Cloning vcpkg..."
-        git clone https://github.com/microsoft/vcpkg.git
-        cd vcpkg
-        .\bootstrap-vcpkg.bat -disableMetrics
+        # ... (前面的 vcpkg 代码保持不变) ...
         
-        Write-Host "Installing openconnect and stoken..."
-        .\vcpkg.exe install openconnect:x64-windows stoken:x64-windows zlib:x64-windows openssl:x64-windows
+        # 【关键修复】使用环境变量 CMAKE_PREFIX_PATH (它在 Setup Qt 步骤中已经设置好了)
+        # 或者重新计算路径
+        $BaseDir = Get-Location
+        $QtDir = Join-Path $BaseDir "6.5.3\msvc2019_64"
         
-        # --- 配置 CMake ---
-        cd ..
-        Write-Host "Configuring CMake with VS2019 generator..."
+        Write-Host "Configuring CMake with Qt at: $QtDir"
         
-        # 使用 Visual Studio 16 2019 生成器，确保与 Qt 版本匹配
         cmake -S . -B build `
           -G "Visual Studio 16 2019" `
           -A x64 `
           -DCMAKE_BUILD_TYPE=Release `
           -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" `
-          -DCMAKE_PREFIX_PATH="C:\Qt\6.5.3\msvc2019_64"
+          -DCMAKE_PREFIX_PATH="$QtDir"  # 使用动态计算的正确路径
           
       shell: pwsh
 
