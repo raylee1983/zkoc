@@ -15,37 +15,64 @@ jobs:
       with:
         submodules: recursive
 
+    # --- 修改点 1: 更稳健的 Qt 安装步骤 ---
     - name: Setup Qt (via aqtinstall)
       run: |
+        # 1. 安装最新版的 aqtinstall (避免版本过旧找不到新 Qt)
+        python -m pip install --upgrade pip
         pip install aqtinstall
-        # 安装 Qt 6.8.1 (根据你代码需要的版本调整，通常 6.x 或 5.15)
-        # 这里假设项目需要 Qt6，如果报错可尝试 qt5.15.2
-        python -m aqt install-qt windows desktop 6.8.1 win64_msvc2022_64 --modules qtstatemachine
-        # 设置环境变量
-        echo "C:\Qt\6.8.1\msvc2022_64\bin" >> $GITHUB_PATH
-        echo "C:\Qt\6.8.1\msvc2022_64" >> $GITHUB_PATH
+        
+        # 2. 设置环境变量，强制使用清华镜像源 (解决网络超时)
+        $env:AQT_BASE_URL = "https://mirrors.tuna.tsinghua.edu.cn/qt"
+        
+        # 3. 尝试安装 Qt 6.8.1 (MSVC 2022 64位)
+        # 注意：架构名必须是 win64_msvc2022_64，不能简写
+        python -m aqt install-qt windows desktop 6.8.1 win64_msvc2022_64 --modules qtstatemachine --base https://mirrors.tuna.tsinghua.edu.cn/qt
+        
+        # 4. 设置 Qt 路径到环境变量，供后续 CMake 使用
+        $QtDir = "C:\Qt\6.8.1\msvc2022_64"
+        echo "$QtDir\bin" >> $env:GITHUB_PATH
+        echo "CMAKE_PREFIX_PATH=$QtDir" >> $env:GITHUB_ENV
+        
+        # 验证安装
+        if (!(Test-Path "$QtDir\bin\qmake.exe")) {
+            Write-Error "Qt installation failed or path incorrect!"
+            exit 1
+        }
+      shell: pwsh
 
     - name: Setup MSVC
       uses: ilammy/msvc-dev-cmd@v1
 
+    # --- 修改点 2: 简化 CMake 配置，移除容易失败的 fallback 逻辑 ---
     - name: Configure CMake
       run: |
-        cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="C:\Qt\6.8.1\msvc2022_64"
-        # 如果缺少 openconnect 库，这里可能会报错。
-        # 解决方案：在 GitHub Actions 中通过 vcpkg 安装依赖
-        # 下面尝试通过 vcpkg 安装 openconnect
-      continue-on-error: true # 先尝试直接配置，如果失败则走下面的 vcpkg 流程
+        # 创建构建目录
+        cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
+        
+        # 如果上面报错，说明缺少 openconnect 库。
+        # 我们在下一步统一用 vcpkg 解决依赖，这里先允许失败以便触发下一步
+      continue-on-error: true
 
-    - name: Install Dependencies via Vcpkg (Fallback)
-      if: failure()
+    # --- 修改点 3: 统一的依赖安装与重新配置 ---
+    - name: Install Dependencies & Reconfigure via Vcpkg
       run: |
+        # 1. 克隆并 bootstrap vcpkg
         git clone https://github.com/microsoft/vcpkg.git
         cd vcpkg
-        .\bootstrap-vcpkg.bat
-        .\vcpkg integrate install
-        .\vcpkg install openconnect:x64-windows stoken:x64-windows
-        # 重新配置 CMake，指向 vcpkg
-        cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake"
+        .\bootstrap-vcpkg.bat -disableMetrics
+        
+        # 2. 安装 openconnect 和 stoken (这是 OpenConnect GUI 的核心依赖)
+        .\vcpkg.exe install openconnect:x64-windows stoken:x64-windows zlib:x64-windows
+        
+        # 3. 集成到系统
+        .\vcpkg.exe integrate install
+        
+        # 4. 返回根目录，使用 vcpkg 工具链重新配置 CMake
+        cd ..
+        cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release `
+          -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" `
+          -DCMAKE_PREFIX_PATH="C:\Qt\6.8.1\msvc2022_64"
 
     - name: Build Project
       run: |
@@ -53,29 +80,25 @@ jobs:
 
     - name: Deploy Qt Libraries
       run: |
-        # 复制 exe 到发布目录
-        mkdir deploy
-        copy build\Release\openconnect-gui.exe deploy\
-        # 自动部署 Qt 依赖 dll
-        windeployqt deploy\openconnect-gui.exe --release --no-compiler-runtime --no-system-d3d-compiler
+        # 创建发布目录
+        New-Item -ItemType Directory -Force -Path deploy
         
-        # 如果使用了 vcpkg，还需要复制 vcpkg 安装的 dll (openconnect, stoken 等)
-        # 简单粗暴法：把 vcpkg installed 目录下的 bin 全部拷过去 (生产环境建议只拷需要的)
-        if exist "vcpkg\installed\x64-windows\bin" (
-          copy vcpkg\installed\x64-windows\bin\*.dll deploy\
-        )
-
-    - name: Sign Executable (Optional)
-      if: env.SIGNING_CERT != ''
-      run: |
-        # 如果有证书，在这里调用 signtool
-        echo "Signing not configured in this template without secrets."
-      env:
-        SIGNING_CERT: ${{ secrets.SIGNING_CERT }}
+        # 复制主程序
+        Copy-Item "build\Release\openconnect-gui.exe" "deploy\"
+        
+        # 部署 Qt 基础 DLLs
+        windeployqt "deploy\openconnect-gui.exe" --release --no-compiler-runtime --no-system-d3d-compiler --no-opengl-sw
+        
+        # 复制 vcpkg 安装的第三方库 (openconnect, stoken 等)
+        # 暴力复制所有 bin 下的 dll 到 deploy 目录 (生产环境可优化为只复制需要的)
+        Copy-Item "vcpkg\installed\x64-windows\bin\*.dll" "deploy\" -Force
+        
+        # 列出文件以便检查
+        Get-ChildItem deploy
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: OpenConnect-GUI-CN-Windows
         path: deploy/
-        retention-days: 30
+        retention-days: 14
