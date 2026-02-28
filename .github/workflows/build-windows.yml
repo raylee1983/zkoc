@@ -54,27 +54,33 @@ jobs:
     # 3. 配置 MSVC 编译器 (使用 v142 工具集匹配 Qt 6.5.3)
     - name: Setup MSVC
       uses: ilammy/msvc-dev-cmd@v1
-      with:
-        toolset: v142
 
     # 4. 安装依赖 (OpenConnect, Stoken) 并配置 CMake
     - name: Install Dependencies & Configure CMake
       run: |
-        # ... (前面的 vcpkg 代码保持不变) ...
+        Write-Host "Cloning vcpkg..."
+        git clone https://github.com/microsoft/vcpkg.git
+        cd vcpkg
+        .\bootstrap-vcpkg.bat -disableMetrics
         
-        # 【关键修复】使用环境变量 CMAKE_PREFIX_PATH (它在 Setup Qt 步骤中已经设置好了)
-        # 或者重新计算路径
+        Write-Host "Installing openconnect and stoken..."
+        .\vcpkg.exe install openconnect:x64-windows stoken:x64-windows zlib:x64-windows openssl:x64-windows
+        
+        cd ..
+        
+        # 【关键修改】获取正确的 Qt 路径 (基于当前工作目录)
         $BaseDir = Get-Location
         $QtDir = Join-Path $BaseDir "6.5.3\msvc2019_64"
         
-        Write-Host "Configuring CMake with Qt at: $QtDir"
+        Write-Host "Configuring CMake with VS2022 generator..."
         
+        # 使用 Visual Studio 17 2022 生成器
         cmake -S . -B build `
-          -G "Visual Studio 16 2019" `
+          -G "Visual Studio 17 2022" `
           -A x64 `
           -DCMAKE_BUILD_TYPE=Release `
           -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" `
-          -DCMAKE_PREFIX_PATH="$QtDir"  # 使用动态计算的正确路径
+          -DCMAKE_PREFIX_PATH="$QtDir"
           
       shell: pwsh
 
