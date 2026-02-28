@@ -10,5 +10,5 @@
 // Modify it when settings should become intentionally incompatible.
 class OcSettings : public QSettings {
 public:
-    OcSettings() : QSettings("OpenConnect-GUI Team", "OpenConnect-GUI") { };
+    OcSettings() : QSettings("智瞰VPN团队", "智瞰VPN") { };
 };

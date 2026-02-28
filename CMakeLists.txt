@@ -6,38 +6,38 @@ if(APPLE)
     endif()
 endif()
 
-project(openconnect-gui
+project(zhikan-gui
     VERSION 1.6.2
-    HOMEPAGE_URL https://gui.openconnect-vpn.net/
+    HOMEPAGE_URL https://www.5151ml.com/
     LANGUAGES CXX
 )
 
 message(STATUS "Building ${PROJECT_NAME} v${PROJECT_VERSION} [cmake]")
 
 # The SHORT and COMPANY names affect the installation directory.
-set(PRODUCT_NAME_SHORT "OpenConnect-GUI")
-set(PRODUCT_NAME_COMPANY "OpenConnect-GUI Team")
-set(PRODUCT_NAME_COMPANY_DOMAIN "gui.openconnect-vpn.net")
+set(PRODUCT_NAME_SHORT "ZKVPN")
+set(PRODUCT_NAME_COMPANY "智瞰数科团队")
+set(PRODUCT_NAME_COMPANY_DOMAIN "www.5151ml.com")
 set(INTERNAL_PROJECT_VERSION "${PROJECT_VERSION}")
 
 # The long name is used as the installer description
 # and About screen description.
-set(PRODUCT_NAME_LONG "OpenConnect VPN graphical client")
+set(PRODUCT_NAME_LONG "智瞰VPN客户端")
 
 # Printed in the About screen
-set(PRODUCT_NAME_COPYRIGHT_SHORT "Copyright © 2016-2024 Red Hat Inc., Nikos Mavrogiannopoulos, Ľubomír Carik and others")
-set(PRODUCT_NAME_COPYRIGHT_FULL "Copyright © 2014-2015 Red Hat Inc.<br>Copyright © 2016-2024 Nikos Mavrogiannopoulos<br>Copyright © 2016-2024 Ľubomír Carik<br>Copyright © 2020-2024 David Woodhouse<br>Copyright © 2021-2024 Dimitri Papadopoulos Orfanos<br>Copyright © 2023-2024 Marios Paouris")
+set(PRODUCT_NAME_COPYRIGHT_SHORT "Copyright © 2016-2026 Zhikanshuke Inc., Zhikanshuke")
+set(PRODUCT_NAME_COPYRIGHT_FULL "Copyright © 2014-2026 Zhikanshuke Inc.")
 
 # The application name / main window title / installer app name
-set(APP_NAME "OpenConnect VPN")
+set(APP_NAME "ZKVPN")
 # The URL for determining the latest release
-set(GITLAB_LATEST_RELEASE_URL "https://gitlab.com/api/v4/projects/12274423/releases/permalink/latest")
+set(GITLAB_LATEST_RELEASE_URL "https://www.5151ml.com/")
 # The URL for the latest release
-set(APP_RELEASES_URL "https://gitlab.com/openconnect/openconnect-gui/-/releases")
+set(APP_RELEASES_URL "https://www.5151ml.com/")
 # The URL for downloading the latest release
-set(APP_DOWNLOAD_WIN_URL "https://www.infradead.org/openconnect-gui/download/openconnect-gui-%1-win64.exe")
+set(APP_DOWNLOAD_WIN_URL "https://www.5151ml.com/")
 
-set(APP_ISSUES_URL "https://gitlab.com/openconnect/openconnect-gui/-/issues")
+set(APP_ISSUES_URL "https://www.5151ml.com/")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake/Modules/")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake/Includes/")

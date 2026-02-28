@@ -74,7 +74,7 @@
         <string/>
        </property>
        <attribute name="title">
-        <string>Main</string>
+        <string>登录认证</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
@@ -106,7 +106,7 @@
               <item>
                <widget class="QLabel" name="serverLabel">
                 <property name="text">
-                 <string>Server:</string>
+                 <string>服务地址:</string>
                 </property>
                </widget>
               </item>
@@ -120,10 +120,10 @@
               <item>
                <widget class="QToolButton" name="serverListControl">
                 <property name="whatsThis">
-                 <string>Edit</string>
+                 <string>修改</string>
                 </property>
                 <property name="text">
-                 <string>Edit</string>
+                 <string>修改</string>
                 </property>
                 <property name="icon">
                  <iconset resource="../openconnect-gui.qrc">
@@ -141,7 +141,7 @@
               <item>
                <widget class="QPushButton" name="connectionButton">
                 <property name="text">
-                 <string>Connect</string>
+                 <string>连接</string>
                 </property>
                 <property name="icon">
                  <iconset resource="../openconnect-gui.qrc">
@@ -152,7 +152,7 @@
               <item>
                <widget class="QPushButton" name="viewLogButton">
                 <property name="text">
-                 <string>View log</string>
+                 <string>查看日志</string>
                 </property>
                 <property name="icon">
                  <iconset resource="../openconnect-gui.qrc">
@@ -170,7 +170,7 @@
       </widget>
       <widget class="QWidget" name="tabWidget_vpnInfo">
        <attribute name="title">
-        <string>VPN Info</string>
+        <string>网络信息</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
@@ -235,7 +235,7 @@
           <item row="3" column="0">
            <widget class="QLabel" name="cipherCSTPLabelText">
             <property name="text">
-             <string>Cipher:</string>
+             <string>加密算法:</string>
             </property>
            </widget>
           </item>
@@ -249,7 +249,7 @@
           <item row="4" column="0">
            <widget class="QLabel" name="cipherDTLSLabelText">
             <property name="text">
-             <string>DTLS Cipher:</string>
+             <string>DTLS加密:</string>
             </property>
            </widget>
           </item>
@@ -263,14 +263,14 @@
           <item row="5" column="0">
            <widget class="QLabel" name="downloadLabelText">
             <property name="text">
-             <string>Download:</string>
+             <string>下行流量:</string>
             </property>
            </widget>
           </item>
           <item row="6" column="0">
            <widget class="QLabel" name="uploadLaberText">
             <property name="text">
-             <string>Upload:</string>
+             <string>上行流量:</string>
             </property>
            </widget>
           </item>
@@ -314,11 +314,11 @@
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>&amp;File</string>
+     <string>&amp;文件</string>
     </property>
     <widget class="QMenu" name="menuProfiles">
      <property name="title">
-      <string>&amp;Profiles</string>
+      <string>&amp;配置</string>
      </property>
      <addaction name="actionNewProfile"/>
      <addaction name="actionNewProfileAdvanced"/>
@@ -331,7 +331,7 @@
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
-     <string>&amp;Help</string>
+     <string>&amp;帮助</string>
     </property>
     <addaction name="actionWebSite"/>
     <addaction name="actionReport_an_issue"/>
@@ -343,17 +343,17 @@
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
-     <string>&amp;View</string>
+     <string>&amp;查看</string>
     </property>
     <addaction name="actionLogWindow"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
-     <string>&amp;Settings</string>
+     <string>&amp;设置</string>
     </property>
     <widget class="QMenu" name="menuLog_Level">
      <property name="title">
-      <string>Log Level</string>
+      <string>日志级别</string>
      </property>
      <addaction name="actionError"/>
      <addaction name="actionInfo"/>
@@ -375,7 +375,7 @@
   </widget>
   <action name="actionQuit">
    <property name="text">
-    <string>&amp;Quit</string>
+    <string>&amp;退出</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
@@ -383,31 +383,31 @@
   </action>
   <action name="actionCheckForUpdates">
    <property name="text">
-    <string>Check for &amp;Updates</string>
+    <string>检查 &amp;更新</string>
    </property>
   </action>
   <action name="actionAbout">
    <property name="text">
-    <string>&amp;About</string>
+    <string>&amp;关于</string>
    </property>
    <property name="statusTip">
-    <string>Show the application's About info</string>
+    <string>查看应用简介</string>
    </property>
   </action>
   <action name="actionMinimize">
    <property name="text">
-    <string>Mi&amp;nimize</string>
+    <string>最小化</string>
    </property>
    <property name="toolTip">
-    <string>Minimize</string>
+    <string>最小化</string>
    </property>
   </action>
   <action name="actionRestore">
    <property name="text">
-    <string>&amp;Restore</string>
+    <string>&amp;还原</string>
    </property>
    <property name="toolTip">
-    <string>Restore</string>
+    <string>还原</string>
    </property>
   </action>
   <action name="actionNewProfile">
@@ -416,10 +416,10 @@
      <normaloff>:/images/text-new.png</normaloff>:/images/text-new.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;New profile</string>
+    <string>&amp;新增配置</string>
    </property>
    <property name="toolTip">
-    <string>New quick connect profile</string>
+    <string>新增配置</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
@@ -431,7 +431,7 @@
      <normaloff>:/images/text-editor.png</normaloff>:/images/text-editor.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Edit selected profile</string>
+    <string>&amp;编辑配置</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+E</string>
@@ -443,7 +443,7 @@
      <normaloff>:/images/trashcan.png</normaloff>:/images/trashcan.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Remove selected profile</string>
+    <string>&amp;移除配置</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
@@ -455,10 +455,10 @@
      <normaloff>:/images/edit-find.png</normaloff>:/images/edit-find.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Log window</string>
+    <string>&amp;登录界面</string>
    </property>
    <property name="toolTip">
-    <string>View log window</string>
+    <string>查看日志</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
@@ -469,7 +469,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Minimize to the notification &amp;area</string>
+    <string>最小化到通知栏</string>
    </property>
   </action>
   <action name="actionMinimizeTheApplicationInsteadOfClosing">
@@ -477,7 +477,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Minimize instead of &amp;closing</string>
+    <string>关闭时仅最小化</string>
    </property>
   </action>
   <action name="actionStartMinimized">
@@ -485,23 +485,23 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Start &amp;minimized</string>
+    <string>启动时最小化</string>
    </property>
   </action>
   <action name="actionWebSite">
    <property name="text">
-    <string>&amp;Web site</string>
+    <string>官方站点</string>
    </property>
    <property name="statusTip">
-    <string>Opens the browser and go to OpenConnect VPN site</string>
+    <string>打开官网站点</string>
    </property>
   </action>
   <action name="actionLicense">
    <property name="text">
-    <string>&amp;License info</string>
+    <string>许可信息</string>
    </property>
    <property name="statusTip">
-    <string>Information about license and build</string>
+    <string>许可证与版本信息</string>
    </property>
   </action>
   <action name="actionSingleInstanceMode">
@@ -512,7 +512,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>&amp;Single instance mode</string>
+    <string>单实例模式</string>
    </property>
   </action>
   <action name="actionNewProfileAdvanced">
@@ -521,10 +521,10 @@
      <normaloff>:/images/text-new.png</normaloff>:/images/text-new.png</iconset>
    </property>
    <property name="text">
-    <string>New profile (&amp;advanced)</string>
+    <string>新建配置 (&amp;高级)</string>
    </property>
    <property name="toolTip">
-    <string>New profile (advanced setup)</string>
+    <string>新建配置文件（高级设置）</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+N</string>
@@ -532,7 +532,7 @@
   </action>
   <action name="actionReport_an_issue">
    <property name="text">
-    <string>Report an issue</string>
+    <string>报告问题</string>
    </property>
   </action>
   <actiongroup name="LogLevelGroup">
@@ -541,7 +541,7 @@
      <bool>true</bool>
     </property>
     <property name="text">
-     <string>Error</string>
+     <string>错误</string>
     </property>
    </action>
    <action name="actionInfo">
@@ -549,7 +549,7 @@
      <bool>true</bool>
     </property>
     <property name="text">
-     <string>Info</string>
+     <string>信息</string>
     </property>
    </action>
    <action name="actionDebug">
@@ -557,7 +557,7 @@
      <bool>true</bool>
     </property>
     <property name="text">
-     <string>Debug</string>
+     <string>调试</string>
     </property>
    </action>
    <action name="actionTrace">
@@ -565,7 +565,7 @@
      <bool>true</bool>
     </property>
     <property name="text">
-     <string>Trace</string>
+     <string>追踪</string>
     </property>
    </action>
   </actiongroup>

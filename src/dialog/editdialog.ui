@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Edit</string>
+   <string>修改</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -22,31 +22,31 @@
      <item row="0" column="0">
       <widget class="QLabel" name="nameLabel">
        <property name="text">
-        <string>Name</string>
+        <string>连接别名</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
       <widget class="QLineEdit" name="nameEdit">
        <property name="toolTip">
-        <string>This is a friendly name to distinguish the connection</string>
+        <string>自定义连接名称（唯一）</string>
        </property>
        <property name="placeholderText">
-        <string>User friendly unique connection name</string>
+        <string>自定义连接名称（唯一）</string>
        </property>
       </widget>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="gatewayLabel">
        <property name="text">
-        <string>Gateway</string>
+        <string>网关（URL）</string>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
       <widget class="QLineEdit" name="gatewayEdit">
        <property name="toolTip">
-        <string>Specify the hostname to connect to; a port may be specified after the host separated with a colon ':'</string>
+        <string>请输入要连接的主机名；如需指定端口，请在主机名后添加冒号“:”及端口号。</string>
        </property>
        <property name="statusTip">
         <string/>
@@ -62,21 +62,21 @@
      <item row="2" column="0">
       <widget class="QLabel" name="usernameLabel">
        <property name="text">
-        <string>Username</string>
+        <string>用户名</string>
        </property>
       </widget>
      </item>
      <item row="2" column="1">
       <widget class="QLineEdit" name="usernameEdit">
        <property name="toolTip">
-        <string>Specify the username used in that gateway</string>
+        <string>请输入用户名</string>
        </property>
       </widget>
      </item>
      <item row="3" column="0">
       <widget class="QLabel" name="groupnameLabel">
        <property name="text">
-        <string>Groupname</string>
+        <string>组名</string>
        </property>
       </widget>
      </item>
@@ -114,7 +114,7 @@
      <item row="4" column="0">
       <widget class="QLabel" name="caCertificateLabel">
        <property name="text">
-        <string>CA Certificate</string>
+        <string>CA证书设置</string>
        </property>
       </widget>
      </item>
@@ -130,10 +130,10 @@
        <item>
         <widget class="QLineEdit" name="caCertEdit">
          <property name="toolTip">
-          <string>Specify the CA certificate, if any; by default the system CAs will be used</string>
+          <string>指定 CA 证书（如有）；默认将使用系统 CA 证书。</string>
          </property>
          <property name="whatsThis">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If not set, the system's trusted certificate storage will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;指定 CA 证书（如有）；默认将使用系统 CA 证书。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
@@ -143,7 +143,7 @@
           <bool>false</bool>
          </property>
          <property name="text">
-          <string>Clear</string>
+          <string>清空</string>
          </property>
          <property name="icon">
           <iconset resource="../openconnect-gui.qrc">
@@ -156,7 +156,7 @@
      <item row="6" column="0">
       <widget class="QLabel" name="serverCertificateLabel">
        <property name="text">
-        <string>Server Certificate</string>
+        <string>服务器证书</string>
        </property>
       </widget>
      </item>
@@ -186,7 +186,7 @@
           <bool>false</bool>
          </property>
          <property name="text">
-          <string>Clear</string>
+          <string>清空</string>
          </property>
          <property name="icon">
           <iconset resource="../openconnect-gui.qrc">
@@ -199,7 +199,7 @@
      <item row="8" column="0">
       <widget class="QLabel" name="otpTokenLabel">
        <property name="text">
-        <string>OTP Token</string>
+        <string>OTP令牌</string>
        </property>
       </widget>
      </item>
@@ -231,7 +231,7 @@
          </item>
          <item>
           <property name="text">
-           <string>STOKEN (RSA)</string>
+           <string>软件令牌 (RSA)</string>
           </property>
          </item>
         </widget>
@@ -239,7 +239,7 @@
        <item>
         <widget class="QLineEdit" name="tokenEdit">
          <property name="toolTip">
-          <string>This is the token code; should be a hex value (starting with 0x), or a value starting with 'base32:'</string>
+          <string>这是令牌代码；应为十六进制值（以 0x 开头），或以 'base32:' 开头的值。</string>
          </property>
         </widget>
        </item>
@@ -262,7 +262,7 @@
      <item row="9" column="0">
       <widget class="QLabel" name="protocolLabel">
        <property name="text">
-        <string>VPN protocol</string>
+        <string>VPN协议</string>
        </property>
        <property name="buddy">
         <cstring>protocolComboBox</cstring>
@@ -295,29 +295,26 @@
      <item row="10" column="0">
       <widget class="QLabel" name="interfaceNameLabel">
        <property name="text">
-        <string>Interface Name</string>
+        <string>接口名称</string>
        </property>
       </widget>
      </item>
      <item row="10" column="1">
       <widget class="QLineEdit" name="interfaceNameEdit">
        <property name="toolTip">
-        <string>Override default interface name.
-
-This can be useful in advanced scenarios, e.g. for setting up firewall 
-or routing rules.
-
-Leave blank for default (usually the server name when using wintun).</string>
+        <string>覆盖默认接口名称。
+此设置在高级场景中非常有用，例如配置防火墙或路由规则时。
+留空则使用默认名称（使用 Wintun 时通常为服务器名称）。</string>
        </property>
        <property name="placeholderText">
-        <string>(Optional) Override default interface name</string>
+        <string>（可选）覆盖默认接口名称</string>
        </property>
       </widget>
      </item>
      <item row="11" column="0">
       <widget class="QLabel" name="vpncScriptLabel">
        <property name="text">
-        <string>vpnc script</string>
+        <string>vpnc 脚本</string>
        </property>
       </widget>
      </item>
@@ -333,15 +330,12 @@ Leave blank for default (usually the server name when using wintun).</string>
        <item>
         <widget class="QLineEdit" name="vpncScriptEdit">
          <property name="toolTip">
-          <string>Override default vpnc script.
-
-This can be useful in advanced scenarios, e.g. for setting up firewall 
-or routing rules.
-
-Leave blank for default.</string>
+          <string>覆盖默认 vpnc 脚本。
+此设置在高级场景中非常有用，例如配置防火墙或路由规则时。
+留空则使用默认脚本。</string>
          </property>
          <property name="placeholderText">
-          <string>(Optional) Override default vpnc script</string>
+          <string>（可选）覆盖默认 vpnc 脚本</string>
          </property>
         </widget>
        </item>
@@ -363,27 +357,27 @@ Leave blank for default.</string>
        </property>
        <item>
         <property name="text">
-         <string>(Application Default)</string>
+         <string>（应用默认值）</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Error</string>
+         <string>错误</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Info</string>
+         <string>信息</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Debug</string>
+         <string>调试</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Trace</string>
+         <string>追踪</string>
         </property>
        </item>
       </widget>
@@ -391,7 +385,7 @@ Leave blank for default.</string>
      <item row="12" column="0">
       <widget class="QLabel" name="logLevelLabel">
        <property name="text">
-        <string>Log Level</string>
+        <string>日志等级</string>
        </property>
       </widget>
      </item>
@@ -404,7 +398,7 @@ Leave blank for default.</string>
      </property>
      <widget class="QWidget" name="localCertificateTab">
       <attribute name="title">
-       <string>Local Certificate</string>
+       <string>本地证书</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
@@ -415,7 +409,7 @@ Leave blank for default.</string>
          <item row="1" column="0">
           <widget class="QLabel" name="userCertificateLabel">
            <property name="text">
-            <string>User Certificate</string>
+            <string>用户证书</string>
            </property>
           </widget>
          </item>
@@ -431,7 +425,7 @@ Leave blank for default.</string>
            <item>
             <widget class="QLineEdit" name="userCertEdit">
              <property name="toolTip">
-              <string>Specify your certificate file, if any</string>
+              <string>请选择证书文件（可选）</string>
              </property>
             </widget>
            </item>
@@ -441,7 +435,7 @@ Leave blank for default.</string>
               <bool>false</bool>
              </property>
              <property name="text">
-              <string>Clear</string>
+              <string>清空</string>
              </property>
              <property name="icon">
               <iconset resource="../openconnect-gui.qrc">
@@ -470,7 +464,7 @@ Leave blank for default.</string>
             <bool>true</bool>
            </property>
            <property name="text">
-            <string>User Key</string>
+            <string>用户Key</string>
            </property>
           </widget>
          </item>
@@ -492,7 +486,7 @@ Leave blank for default.</string>
               <bool>true</bool>
              </property>
              <property name="toolTip">
-              <string>Specify your key file if any; in case of a PKCS #12 file, you only need to set the certificate</string>
+              <string>指定您的密钥文件（如有）；若为 PKCS #12 文件，则只需设置证书。</string>
              </property>
             </widget>
            </item>
@@ -502,7 +496,7 @@ Leave blank for default.</string>
               <bool>false</bool>
              </property>
              <property name="text">
-              <string>Clear</string>
+              <string>清空</string>
              </property>
              <property name="icon">
               <iconset resource="../openconnect-gui.qrc">
@@ -518,7 +512,7 @@ Leave blank for default.</string>
      </widget>
      <widget class="QWidget" name="systemStoreTab">
       <attribute name="title">
-       <string>System Store</string>
+       <string>系统证书库</string>
       </attribute>
       <widget class="QListWidget" name="loadWinCertList">
        <property name="geometry">
@@ -549,14 +543,14 @@ Leave blank for default.</string>
            <string extracomment="Select that certificate"/>
           </property>
           <property name="text">
-           <string>Select</string>
+           <string>选择</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QToolButton" name="resetWinCertSelection">
           <property name="text">
-           <string>Reset</string>
+           <string>重置</string>
           </property>
          </widget>
         </item>
@@ -576,15 +570,15 @@ Leave blank for default.</string>
         <item row="0" column="0">
          <widget class="QLabel" name="reconnectTimeoutLabel">
           <property name="text">
-           <string>Reconnect timeout</string>
+           <string>重连超时</string>
           </property>
          </widget>
         </item>
         <item row="0" column="1">
          <widget class="QSpinBox" name="reconnectTimeoutSpinBox">
           <property name="toolTip">
-           <string>Keep reconnect attempts until so much seconds are elapsed.
-The default timeout is 300 seconds, which means that openconnect can recover VPN connection after a temporary network down time of 300 seconds.</string>
+           <string>持续尝试重连，直到经过指定的秒数。
+默认超时时间为 300 秒，这意味着如果网络暂时中断，OpenConnect 可在长达 300 秒的时间内自动恢复 VPN 连接。</string>
           </property>
           <property name="suffix">
            <string>s</string>
@@ -603,7 +597,7 @@ The default timeout is 300 seconds, which means that openconnect can recover VPN
         <item row="1" column="0">
          <widget class="QLabel" name="dtlsAttemptPeriodLabel">
           <property name="text">
-           <string>DTLS attempt period</string>
+           <string>DTLS 重连尝试间隔</string>
           </property>
          </widget>
         </item>
@@ -627,37 +621,37 @@ The default timeout is 300 seconds, which means that openconnect can recover VPN
         <item row="0" column="0">
          <widget class="QCheckBox" name="minimizeBox">
           <property name="toolTip">
-           <string>Enable this to automatically minimize after connection</string>
+           <string>连接后自动最小化</string>
           </property>
           <property name="text">
-           <string>Minimize on Connect</string>
+           <string>连接后最小化</string>
           </property>
          </widget>
         </item>
         <item row="0" column="1">
          <widget class="QCheckBox" name="batchModeBox">
           <property name="toolTip">
-           <string>Enable this to remember passwords for this server</string>
+           <string>记住密码</string>
           </property>
           <property name="text">
-           <string>Batch mode</string>
+           <string>批处理模式</string>
           </property>
          </widget>
         </item>
         <item row="1" column="0">
          <widget class="QCheckBox" name="disableUdpBox">
           <property name="text">
-           <string>Disable UDP</string>
+           <string>禁用UDP</string>
           </property>
          </widget>
         </item>
         <item row="1" column="1">
          <widget class="QCheckBox" name="useProxyBox">
           <property name="toolTip">
-           <string>Enable this to use the system's default proxy settings for this server</string>
+           <string>对该服务器使用系统默认代理</string>
           </property>
           <property name="text">
-           <string>Use Proxy</string>
+           <string>使用代理</string>
           </property>
          </widget>
         </item>

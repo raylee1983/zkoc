@@ -151,7 +151,7 @@ EditDialog::EditDialog(QString server, QWidget* parent)
     if (ss->load(server) < 0) {
         QMessageBox::information(this,
             qApp->applicationName(),
-            ss->m_last_err.isEmpty() ? tr("Some server information failed to load") : ss->m_last_err);
+            ss->m_last_err.isEmpty() ? tr("服务器信息加载失败") : ss->m_last_err);
     }
 
     ss->set_window(this);
@@ -212,21 +212,21 @@ void EditDialog::on_buttonBox_accepted()
     if (ui->gatewayEdit->text().isEmpty() == true) {
         QMessageBox::information(this,
             qApp->applicationName(),
-            tr("You need to specify a gateway. E.g. vpn.example.com:443"));
+            tr("修改网关（如：vpn.example.com:443）"));
         return;
     }
 
     if (ui->nameEdit->text().isEmpty() == true) {
         QMessageBox::information(this,
             qApp->applicationName(),
-            tr("You need to specify a name for this connection. E.g. 'My company'"));
+            tr("修改连接名称（如：'智瞰VPN'）"));
         return;
     }
 
     if (ui->caCertEdit->text().isEmpty() == false) {
         if (ss->set_ca_cert(ui->caCertEdit->text()) != 0) {
             QMessageBox mbox;
-            mbox.setText(tr("Cannot import CA certificate."));
+            mbox.setText(tr("导入CA证书失败"));
             if (ss->m_last_err.isEmpty() == false)
                 mbox.setInformativeText(ss->m_last_err);
             mbox.exec();
@@ -239,7 +239,7 @@ void EditDialog::on_buttonBox_accepted()
     if (ui->userKeyEdit->text().isEmpty() == false) {
         if (ss->set_client_key(ui->userKeyEdit->text()) != 0) {
             QMessageBox mbox;
-            mbox.setText(tr("Cannot import user key."));
+            mbox.setText(tr("导入用户key文件失败"));
             if (ss->m_last_err.isEmpty() == false)
                 mbox.setInformativeText(ss->m_last_err);
             mbox.exec();
@@ -250,7 +250,7 @@ void EditDialog::on_buttonBox_accepted()
     if (ui->userCertEdit->text().isEmpty() == false) {
         if (ss->set_client_cert(ui->userCertEdit->text()) != 0) {
             QMessageBox mbox;
-            mbox.setText(tr("Cannot import user certificate."));
+            mbox.setText(tr("导入用户证书失败"));
             if (ss->m_last_err.isEmpty() == false)
                 mbox.setInformativeText(ss->m_last_err);
             mbox.exec();
@@ -263,7 +263,7 @@ void EditDialog::on_buttonBox_accepted()
     if (ss->client_is_complete() != true) {
         QMessageBox::information(this,
             qApp->applicationName(),
-            tr("There is a client certificate specified but no key!"));
+            tr("缺少密钥：已指定客户端证书!"));
         return;
     }
     ss->set_label(ui->nameEdit->text());
@@ -307,8 +307,8 @@ void EditDialog::on_buttonBox_rejected()
 void EditDialog::on_userCertButton_clicked()
 {
     QString filename = QFileDialog::getOpenFileName(this,
-        tr("Open certificate"), "",
-        tr("Certificate Files (*.crt *.pem *.der *.p12)"));
+        tr("选择证书"), "",
+        tr("证书文件 (*.crt *.pem *.der *.p12)"));
 
     // FIXME: check empty result
     ui->userCertEdit->setText(filename);
@@ -317,8 +317,8 @@ void EditDialog::on_userCertButton_clicked()
 void EditDialog::on_userKeyButton_clicked()
 {
     QString filename = QFileDialog::getOpenFileName(this,
-        tr("Open private key"), "",
-        tr("Private key Files (*.key *.pem *.der *.p8 *.p12)"));
+        tr("选择Key文件"), "",
+        tr("Key文件 (*.key *.pem *.der *.p8 *.p12)"));
 
     // FIXME: check empty result
     ui->userKeyEdit->setText(filename);
@@ -327,8 +327,8 @@ void EditDialog::on_userKeyButton_clicked()
 void EditDialog::on_caCertButton_clicked()
 {
     QString filename = QFileDialog::getOpenFileName(this,
-        tr("Open certificate"), "",
-        tr("Certificate Files (*.crt *.pem *.der)"));
+        tr("选择证书"), "",
+        tr("证书文件(*.crt *.pem *.der)"));
 
     // FIXME: check empty result
     ui->caCertEdit->setText(filename);
@@ -436,7 +436,7 @@ void EditDialog::on_vpncScriptButton_clicked()
 #endif
 
     QString filename = QFileDialog::getOpenFileName(this,
-        tr("Select vpnc-script"),
+        tr("选择vpnc脚本"),
         ui->vpncScriptEdit->text(),
         filter
     );

@@ -30,7 +30,7 @@ FileLogger::FileLogger(QObject* parent, const QString& logPath, const size_t log
         spd::set_pattern("%v");
     } catch (const spd::spdlog_ex& ex) {
         QMessageBox::critical(nullptr,
-            QString("Log file init failed"),
+            QString("日志文件初始化失败"),
             QString(ex.what()));
         throw;
     }
@@ -40,7 +40,7 @@ FileLogger::FileLogger(QObject* parent, const QString& logPath, const size_t log
 
 FileLogger::~FileLogger()
 {
-    Logger::instance().addMessage(QString("...logging finished"));
+    Logger::instance().addMessage(QString("...日志记录完毕"));
 }
 
 void FileLogger::addLogMessage(const Logger::Message& message)

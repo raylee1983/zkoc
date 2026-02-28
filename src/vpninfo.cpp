@@ -116,7 +116,7 @@ static int process_auth_form(void* privdata, struct oc_auth_form* form)
         } else {
             {
                 MyInputDialog dialog(vpn->m,
-                    QLatin1String("Auth group selection"),
+                    QLatin1String("选择认证组"),
                     QLatin1String(select_opt->form.label),
                     ditems);
                 dialog.show();
@@ -134,7 +134,7 @@ static int process_auth_form(void* privdata, struct oc_auth_form* form)
                 select_opt->choices[idx]->name);
             text = QLatin1String(select_opt->choices[idx]->name);
 
-            Logger::instance().addMessage(QLatin1String("Saving group: ") + text);
+            Logger::instance().addMessage(QLatin1String("保存组别: ") + text);
             vpn->ss->set_groupname(text);
         }
 
@@ -153,7 +153,7 @@ static int process_auth_form(void* privdata, struct oc_auth_form* form)
             QStringList items;
             struct oc_form_opt_select* select_opt = reinterpret_cast<oc_form_opt_select*>(opt);
 
-            Logger::instance().addMessage(QString::fromUtf8("Select form: ") + QString::fromUtf8(opt->name));
+            Logger::instance().addMessage(QString::fromUtf8("选择: ") + QString::fromUtf8(opt->name));
 
             if (select_opt == form->authgroup_opt) {
                 continue;
@@ -165,7 +165,7 @@ static int process_auth_form(void* privdata, struct oc_auth_form* form)
 
             {
                 MyInputDialog dialog(vpn->m,
-                    QLatin1String("Form selection"),
+                    QLatin1String("选择"),
                     QString::fromUtf8(opt->label), items);
 
                 dialog.set_banner(QString::fromUtf8(form->banner), QString::fromUtf8(form->message));
@@ -183,7 +183,7 @@ static int process_auth_form(void* privdata, struct oc_auth_form* form)
             openconnect_set_option_value(opt, select_opt->choices[idx]->name);
             empty = 0;
         } else if (opt->type == OC_FORM_OPT_TEXT) {
-            Logger::instance().addMessage(QString::fromUtf8("Text form: ") + QString::fromUtf8(opt->name));
+            Logger::instance().addMessage(QString::fromUtf8("文本: ") + QString::fromUtf8(opt->name));
 
             if (vpn->form_attempt == 0
                 && vpn->ss->get_username().isEmpty() == false
@@ -196,7 +196,7 @@ static int process_auth_form(void* privdata, struct oc_auth_form* form)
 
             do {
                 MyInputDialog dialog(vpn->m,
-                    QLatin1String("Username input"),
+                    QLatin1String("输入用户名"),
                     QString::fromUtf8(opt->label),
                     QLineEdit::Normal);
 
@@ -216,7 +216,7 @@ static int process_auth_form(void* privdata, struct oc_auth_form* form)
             vpn->form_attempt++;
             empty = 0;
         } else if (opt->type == OC_FORM_OPT_PASSWORD) {
-            Logger::instance().addMessage(QString::fromUtf8("Password form: ") + QString::fromUtf8(opt->name));
+            Logger::instance().addMessage(QString::fromUtf8("输入密码: ") + QString::fromUtf8(opt->name));
 
             if (vpn->form_pass_attempt == 0
                 && vpn->ss->get_password().isEmpty() == false
@@ -249,7 +249,7 @@ static int process_auth_form(void* privdata, struct oc_auth_form* form)
             vpn->form_pass_attempt++;
             empty = 0;
         } else {
-            Logger::instance().addMessage(QLatin1String("unknown type ") + QString::number((int)opt->type));
+            Logger::instance().addMessage(QLatin1String("未知类型 ") + QString::number((int)opt->type));
         }
     }
 
@@ -270,13 +270,13 @@ static int validate_peer_cert(void* privdata, const char* reason)
     unsigned char* der = nullptr;
     int der_size = openconnect_get_peer_cert_DER(vpn->vpninfo, &der);
     if (der_size <= 0) {
-        Logger::instance().addMessage(QObject::tr("Peer's certificate has invalid size!"));
+        Logger::instance().addMessage(QObject::tr("对方证书尺寸无效!"));
         return -1;
     }
 
     const char* hash = openconnect_get_peer_cert_hash(vpn->vpninfo);
     if (hash == nullptr) {
-        Logger::instance().addMessage(QObject::tr("Error getting peer's certificate hash"));
+        Logger::instance().addMessage(QObject::tr("对方证书 hash 值错误"));
         return -1;
     }
 
@@ -303,18 +303,14 @@ static int validate_peer_cert(void* privdata, const char* reason)
         save = true;
 
     if (ret == GNUTLS_E_NO_CERTIFICATE_FOUND) {
-        Logger::instance().addMessage(QObject::tr("peer is unknown"));
+        Logger::instance().addMessage(QObject::tr("主机无响应"));
 
         QString hostInfoStr = QObject::tr("Host: ") + vpn->ss->get_server_gateway() + QObject::tr("\n") + hash;
         MyCertMsgBox msgBox(
             vpn->m,
-            QObject::tr("This server's certificate cannot be validated with a trusted authority.<br><br>"
-                        "<b>There is no guarantee that the server is the computer you think it is.</b>\n\n"
-                        "If the information provided below is valid and you use another way to validate it, "
-                        "hit 'Accurate information' to remember it and to carry on connecting.\n"
-                        "If you cannot validate this information, hit <b>Cancel</b> to abandon the connection."),
+            QObject::tr("该服务器的证书无法通过受信任的授权机构进行验证"),
             hostInfoStr,
-            QObject::tr("Accurate information"),
+            QObject::tr("确认信息无误"),
             dstr);
         msgBox.show();
         if (msgBox.result() == false) {
@@ -323,15 +319,12 @@ static int validate_peer_cert(void* privdata, const char* reason)
 
         save = true;
     } else if (ret == GNUTLS_E_CERTIFICATE_KEY_MISMATCH) {
-        Logger::instance().addMessage(QObject::tr("peer's key has changed!"));
+        Logger::instance().addMessage(QObject::tr("对方Key发生变更!"));
 
         MyCertMsgBox msgBox(vpn->m,
-            QObject::tr("This peer is known and associated with a different key."
-                        "It may be that the server has multiple keys "
-                        "or you are (or were in the past) under attack. "
-                        "Do you want to proceed?"),
+            QObject::tr("该对等方已被记录，但关联了不同的密钥。这可能是服务器拥有多个密钥，也可能表示您正在（或曾经）遭受攻击。您是否要继续？"),
             QObject::tr("Host: %1\n%2").arg(vpn->ss->get_server_gateway()).arg(hash),
-            QObject::tr("The key was changed by the administrator"),
+            QObject::tr("管理员已修改key信息"),
             dstr);
         msgBox.show();
         if (msgBox.result() == false) {
@@ -340,18 +333,18 @@ static int validate_peer_cert(void* privdata, const char* reason)
 
         save = true;
     } else if (ret < 0) {
-        QString str = QObject::tr("Could not verify certificate: ");
+        QString str = QObject::tr("无法校验证书: ");
         str += gnutls_strerror(ret);
         Logger::instance().addMessage(str);
         return -1;
     }
 
     if (save != false) {
-        Logger::instance().addMessage(QObject::tr("saving peer's public key"));
+        Logger::instance().addMessage(QObject::tr("保存对方公钥"));
         ret = gnutls_store_pubkey(reinterpret_cast<const char*>(&tdb), tdb.tdb,
             "", "", GNUTLS_CRT_X509, &raw, 0, 0);
         if (ret < 0) {
-            QString str = QObject::tr("Could not store certificate: %1").arg(gnutls_strerror(ret));
+            QString str = QObject::tr("无法存储证书: %1").arg(gnutls_strerror(ret));
             Logger::instance().addMessage(str);
         } else {
             vpn->ss->save();
@@ -403,7 +396,7 @@ static void setup_tun_vfn(void* privdata)
         interface_name = vpn->ss->get_interface_name().toUtf8();
 #ifdef _WIN32
 #if ! (OPENCONNECT_API_VERSION_MAJOR == 5 && OPENCONNECT_API_VERSION_MINOR == 9)
-#error "This probably has been fixed in openconnect in API version >= 5.9 and this workaround is not required anymore."
+#error "此问题可能已在 智瞰VPN版本 5.9 及以上中得到修复，因此不再需要此变通方案。"
 #endif
     else {
         //generate a "unique" interface name if no interface name was specified.
@@ -415,7 +408,7 @@ static void setup_tun_vfn(void* privdata)
         //See openconnect-gui#357 (comment 1758999655) and openconnect#699
         interface_name = vpn->generateUniqueInterfaceName();
 
-        Logger::instance().addMessage(QObject::tr("Using generated interface name %1").arg(QString::fromUtf8(interface_name)));
+        Logger::instance().addMessage(QObject::tr("使用自动生成的接口名 %1").arg(QString::fromUtf8(interface_name)));
     }
 #endif
 
@@ -423,7 +416,7 @@ static void setup_tun_vfn(void* privdata)
                                            vpncScriptFullPath.constData(),
                                            interface_name.constData());
     if (ret != 0) {
-        vpn->last_err = QObject::tr("Error setting up the TUN device");
+        vpn->last_err = QObject::tr("创建 TUN 设备失败");
         //FIXME: ???        return ret;
     }
 
@@ -445,7 +438,7 @@ VpnInfo::VpnInfo(QString name, StoredServer* ss, MainWindow* m)
     this->vpninfo = openconnect_vpninfo_new(name.toUtf8().data(), validate_peer_cert, nullptr,
         process_auth_form, progress_vfn, this);
     if (this->vpninfo == nullptr) {
-        throw std::runtime_error("initial setup fails");
+        throw std::runtime_error("初始化安装失败");
     }
 
     //get loglevel preference from profile
@@ -460,8 +453,8 @@ VpnInfo::VpnInfo(QString name, StoredServer* ss, MainWindow* m)
 
     this->cmd_fd = openconnect_setup_cmd_pipe(vpninfo);
     if (this->cmd_fd == INVALID_SOCKET) {
-        Logger::instance().addMessage(QObject::tr("invalid socket"));
-        throw std::runtime_error("pipe setup fails");
+        Logger::instance().addMessage(QObject::tr("无效的套接字 socket"));
+        throw std::runtime_error("管道初始化失败");
     }
     set_sock_block(this->cmd_fd);
 
@@ -516,7 +509,7 @@ int VpnInfo::connect()
     if (this->ss->get_disable_udp() == true) {
         ret = openconnect_disable_dtls(vpninfo);
         if (ret != 0) {
-            this->last_err = QObject::tr("Error disabling DTLS (%1)").arg(ret);
+            this->last_err = QObject::tr("禁用 DTLS 失败 (%1)").arg(ret);
             return ret;
         }
     }
@@ -553,13 +546,13 @@ int VpnInfo::connect()
 
     ret = openconnect_obtain_cookie(vpninfo);
     if (ret != 0) {
-        this->last_err = QObject::tr("Authentication error; cannot obtain cookie");
+        this->last_err = QObject::tr("认证失败，无法保存Cookie");
         return ret;
     }
 
     ret = openconnect_make_cstp_connection(vpninfo);
     if (ret != 0) {
-        this->last_err = QObject::tr("Error establishing the CSTP channel");
+        this->last_err = QObject::tr("建立CSTP通道失败");
         return ret;
     }
 
@@ -567,14 +560,14 @@ int VpnInfo::connect()
         ret = openconnect_setup_dtls(vpninfo, ss->get_dtls_reconnect_timeout());
 
         if (ret != 0) {
-            this->last_err = QObject::tr("Error setting up DTLS (%1)").arg(ret);
+            this->last_err = QObject::tr("建立DTLS失败 (%1)").arg(ret);
 
             //FIXME: this call we possibly fail since CSTP is already connected, but will try it anyway and fail if we can't
             //we don't have any other way in the openconnect library to disable it at this stage
             ret = openconnect_disable_dtls(vpninfo);
 
             if (ret != 0) {
-                this->last_err += QObject::tr(". Cannot disable it (%1)").arg(ret);
+                this->last_err += QObject::tr(". 禁用失败 (%1)").arg(ret);
             }
 
             return ret;
@@ -591,7 +584,7 @@ void VpnInfo::mainloop()
             ss->get_reconnect_timeout(),
             RECONNECT_INTERVAL_MIN);
         if (ret != 0) {
-            this->last_err = QObject::tr("Disconnected");
+            this->last_err = QObject::tr("已关闭连接");
             logVpncScriptOutput();
             break;
         }
@@ -691,7 +684,7 @@ void VpnInfo::logVpncScriptOutput()
         }
         file.close();
         if (file.remove() != true) {
-            Logger::instance().addMessage(QLatin1String("Could not remove ") + QDir::toNativeSeparators(tfile) + ": " + file.errorString());
+            Logger::instance().addMessage(QLatin1String("不可移动 ") + QDir::toNativeSeparators(tfile) + ": " + file.errorString());
         }
 
         if (ss->get_batch_mode() != true && bannerMessage.isEmpty() == false) {
@@ -699,14 +692,14 @@ void VpnInfo::logVpncScriptOutput()
             MyMsgBox msgBox(this->m,
                 bannerMessage,
                 QString(""),
-                QString("Accept"));
+                QString("接受"));
             msgBox.show();
             if (msgBox.result() == false) {
                 this->m->on_disconnectClicked();
             }
         }
     } else {
-        Logger::instance().addMessage(QLatin1String("Could not open ") + QDir::toNativeSeparators(tfile) + ": " + file.errorString());
+        Logger::instance().addMessage(QLatin1String("无法打开 ") + QDir::toNativeSeparators(tfile) + ": " + file.errorString());
     }
 }
 

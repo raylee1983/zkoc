@@ -84,7 +84,7 @@ void LogDialog::on_pushButtonClear_clicked()
     if (ui->listWidget->count()) {
         if (QMessageBox::question(this,
                 "",
-                tr("Are you sure you want to clear the log?"),
+                tr("确定删除日志吗?"),
                 QMessageBox::Yes | QMessageBox::No,
                 QMessageBox::No)
             == QMessageBox::Yes) {

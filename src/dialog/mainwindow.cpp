@@ -155,7 +155,7 @@ MainWindow::MainWindow(QWidget* parent, bool useTray, const QString profileName)
         m_trayIcon->setIcon(icon);
         m_trayIcon->show();
     } else {
-        Logger::instance().addMessage(QLatin1String("System doesn't support tray icon"));
+        Logger::instance().addMessage(QLatin1String("系统不支持托盘图标"));
         m_trayIcon = nullptr;
     }
 
@@ -168,7 +168,7 @@ MainWindow::MainWindow(QWidget* parent, bool useTray, const QString profileName)
     s1_noProfiles->assignProperty(ui->actionRemoveSelectedProfile, "enabled", false);
 
     if (m_trayIcon) {
-        s1_noProfiles->assignProperty(m_trayIconMenuConnections, "title", tr("(no servers to connect)"));
+        s1_noProfiles->assignProperty(m_trayIconMenuConnections, "title", tr("(无法连接服务器)"));
         s1_noProfiles->assignProperty(m_trayIconMenuConnections, "enabled", false);
         s1_noProfiles->assignProperty(m_disconnectAction, "enabled", false);
     }
@@ -181,7 +181,7 @@ MainWindow::MainWindow(QWidget* parent, bool useTray, const QString profileName)
     s2_connectionReady->assignProperty(ui->actionRemoveSelectedProfile, "enabled", true);
 
     if (m_trayIcon) {
-        s2_connectionReady->assignProperty(m_trayIconMenuConnections, "title", tr("Connect to..."));
+        s2_connectionReady->assignProperty(m_trayIconMenuConnections, "title", tr("连接中..."));
         s2_connectionReady->assignProperty(m_trayIconMenuConnections, "enabled", true);
     }
     machine->addState(s2_connectionReady);
@@ -232,8 +232,8 @@ MainWindow::MainWindow(QWidget* parent, bool useTray, const QString profileName)
                 return;
             } else {
                 QMessageBox::warning(this,
-                    tr("Connection failed"),
-                    tr("Selected VPN profile '<b>%1</b>' does not exist.").arg(profileName));
+                    tr("连接失败"),
+                    tr("选择VPN配置'<b>%1</b>'不存在.").arg(profileName));
             }
         }
 
@@ -362,7 +362,7 @@ static void term_thread(MainWindow* m, SOCKET* fd)
         m->vpn_status_changed(STATUS_DISCONNECTING);
         int ret = pipe_write(*fd, &cmd, 1);
         if (ret < 0) {
-            Logger::instance().addMessage(QObject::tr("term_thread: IPC error: %1").arg(net_errno));
+            Logger::instance().addMessage(QObject::tr("线程终止失败：IPC 错误：%1").arg(net_errno));
         }
         *fd = INVALID_SOCKET;
         ms_sleep(200);
@@ -403,7 +403,7 @@ void MainWindow::checkLatestVersion() const
     connect(manager, &QNetworkAccessManager::finished,
             this, &MainWindow::gotLatestVersion);
 
-    Logger::instance().addMessage(QObject::tr("Checking for current version"));
+    Logger::instance().addMessage(QObject::tr("检查当前版本"));
     manager->get(req);
 }
 
@@ -419,7 +419,7 @@ void MainWindow::tryCheckLatestVersion()
     }
 
     if (now - last_check_time < 5*86400) {
-        Logger::instance().addMessage(QObject::tr("Skipping automatic check for current version"));
+        Logger::instance().addMessage(QObject::tr("跳过自动更新检测"));
         return;
     }
 
@@ -431,23 +431,23 @@ void MainWindow::gotLatestVersion(QNetworkReply *reply)
     QString version;
     version = reply->rawHeader("Location");
 
-    Logger::instance().addMessage(QObject::tr("Version location: %1").arg(version));
+    Logger::instance().addMessage(QObject::tr("当前版本: %1").arg(version));
 
     if (version.isEmpty() != true) {
         qsizetype n=version.lastIndexOf("/");
         if (n != -1) {
             // skip '/v'
             this->latest_version = version.mid(n+2);
-            Logger::instance().addMessage(QObject::tr("Latest available version is %1, current %2").arg(this->latest_version).arg(INTERNAL_PROJECT_VERSION));
+            Logger::instance().addMessage(QObject::tr("最新版本 %1, 当前版本 %2").arg(this->latest_version).arg(INTERNAL_PROJECT_VERSION));
 
             if (m_trayIcon && m_trayIcon->supportsMessages() && latest_version.compare(INTERNAL_PROJECT_VERSION) != 0) {
-                m_trayIcon->showMessage(tr("New version available"), tr("%1 version %2 is available!").arg(QLatin1String(PRODUCT_NAME_SHORT)).arg(this->latest_version));
+                m_trayIcon->showMessage(tr("发现新版本"), tr("%1 版本 %2 可用!").arg(QLatin1String(PRODUCT_NAME_SHORT)).arg(this->latest_version));
             }
         } else {
-            Logger::instance().addMessage(QObject::tr("Unable to identify current version from %1").arg(version));
+            Logger::instance().addMessage(QObject::tr("无法从 %1 识别当前版本").arg(version));
         }
     } else {
-        Logger::instance().addMessage(QObject::tr("Unable to identify current version: %1").arg(reply->errorString()));
+        Logger::instance().addMessage(QObject::tr("无法从 %1 识别当前版本").arg(reply->errorString()));
     }
 
     emit version_download_completed_sig();
@@ -553,7 +553,7 @@ void MainWindow::changeStatus(int val)
 
         ui->iconLabel->setPixmap(ON_ICON);
         ui->connectionButton->setIcon(QIcon(":/images/process-stop.png"));
-        ui->connectionButton->setText(tr("Disconnect"));
+        ui->connectionButton->setText(tr("关闭连接"));
 
         QFileSelector selector;
         if (m_trayIcon) {
@@ -573,7 +573,7 @@ void MainWindow::changeStatus(int val)
         if (this->minimize_on_connect) {
             if (m_trayIcon) {
                 hide();
-                m_trayIcon->showMessage(QLatin1String("Connected"), QLatin1String("You are connected to ") + ui->serverList->currentText(),
+                m_trayIcon->showMessage(QLatin1String("已连接"), QLatin1String("已连接至 ") + ui->serverList->currentText(),
                     QSystemTrayIcon::Information,
                     10000);
             } else {
@@ -582,7 +582,7 @@ void MainWindow::changeStatus(int val)
         }
 
         if (m_trayIcon) {
-            m_trayIcon->setToolTip(QLatin1String("Connected to ") + ui->serverList->currentText());
+            m_trayIcon->setToolTip(QLatin1String("已连接至 ") + ui->serverList->currentText());
         }
     } else if (val == STATUS_CONNECTING) {
 
@@ -591,7 +591,7 @@ void MainWindow::changeStatus(int val)
             QIcon icon(selector.select(QStringLiteral(":/images/network-disconnected.png")));
             icon.setIsMask(true);
             m_trayIcon->setIcon(icon);
-            m_trayIcon->setToolTip(QLatin1String("Connecting to ") + ui->serverList->currentText());
+            m_trayIcon->setToolTip(QLatin1String("正在连接 ") + ui->serverList->currentText());
         }
 
         ui->serverList->setEnabled(false);
@@ -603,7 +603,7 @@ void MainWindow::changeStatus(int val)
 
         ui->iconLabel->setPixmap(CONNECTING_ICON);
         ui->connectionButton->setIcon(QIcon(":/images/process-stop.png"));
-        ui->connectionButton->setText(tr("Cancel"));
+        ui->connectionButton->setText(tr("取消"));
         blink_timer->start(1500);
 
         disconnect(ui->connectionButton, &QPushButton::clicked,
@@ -625,7 +625,7 @@ void MainWindow::changeStatus(int val)
         ui->downloadLabel->clear();
         ui->cipherCSTPLabel->clear();
         ui->cipherDTLSLabel->clear();
-        Logger::instance().addMessage(QObject::tr("Disconnected"));
+        Logger::instance().addMessage(QObject::tr("关闭连接"));
 
         ui->serverList->setEnabled(true);
 
@@ -637,7 +637,7 @@ void MainWindow::changeStatus(int val)
         ui->iconLabel->setPixmap(OFF_ICON);
         ui->connectionButton->setEnabled(true);
         ui->connectionButton->setIcon(QIcon(":/images/network-wired.png"));
-        ui->connectionButton->setText(tr("Connect"));
+        ui->connectionButton->setText(tr("连接"));
 
         if (m_trayIcon) {
             QFileSelector selector;
@@ -646,11 +646,11 @@ void MainWindow::changeStatus(int val)
             m_trayIcon->setIcon(icon);
 
             if (this->isHidden() == true)
-                m_trayIcon->showMessage(QLatin1String("Disconnected"), QLatin1String("You were disconnected from the VPN"),
+                m_trayIcon->showMessage(QLatin1String("关闭连接"), QLatin1String("已连接至VPN"),
                     QSystemTrayIcon::Warning,
                     10000);
 
-            m_trayIcon->setToolTip(QLatin1String("Disconnected"));
+            m_trayIcon->setToolTip(QLatin1String("关闭连接"));
         }
         disconnect(ui->connectionButton, &QPushButton::clicked,
             this, &MainWindow::on_disconnectClicked);
@@ -666,7 +666,7 @@ void MainWindow::changeStatus(int val)
         blink_timer->start(1500);
 
         if (m_trayIcon)
-            m_trayIcon->setToolTip(QLatin1String("Disconnecting from ") + ui->serverList->currentText());
+            m_trayIcon->setToolTip(QLatin1String("关闭连接 ") + ui->serverList->currentText());
     } else {
         qDebug() << "TODO: was is das?";
     }
@@ -702,7 +702,7 @@ static void main_loop(VpnInfo* vpninfo, MainWindow* m)
                 vpninfo->ss->clear_groupname();
                 retry = true;
                 reset_password = true;
-                Logger::instance().addMessage(QObject::tr("Authentication failed in batch mode, retrying with batch mode disabled"));
+                Logger::instance().addMessage(QObject::tr("批处理模式验证失败, 禁用重试"));
                 vpninfo->reset_vpn();
                 continue;
             }
@@ -738,7 +738,7 @@ void MainWindow::on_disconnectClicked()
     if (this->timer->isActive()) {
         this->timer->stop();
     }
-    Logger::instance().addMessage(QObject::tr("Disconnecting..."));
+    Logger::instance().addMessage(QObject::tr("关闭连接..."));
     term_thread(this, &this->cmd_fd);
 }
 
@@ -756,21 +756,21 @@ void MainWindow::on_connectClicked()
     if (this->cmd_fd != INVALID_SOCKET) {
         QMessageBox::information(this,
             qApp->applicationName(),
-            tr("A previous VPN instance is still running (socket is active)"));
+            tr("VPN实例正在运行... (端口已占用)"));
         return;
     }
 
     if (this->futureWatcher.isRunning() == true) {
         QMessageBox::information(this,
             qApp->applicationName(),
-            tr("A previous VPN instance is still running"));
+            tr("VPN实例正在运行..."));
         return;
     }
 
     if (ui->serverList->currentText().isEmpty()) {
         QMessageBox::information(this,
             qApp->applicationName(),
-            tr("You need to specify a gateway. e.g. vpn.example.com:443"));
+            tr("请检查网关设置（如：vpn.example.com:443）"));
         return;
     }
 
@@ -824,11 +824,11 @@ void MainWindow::on_connectClicked()
 
     /* ss is now deallocated by vpninfo */
     try {
-        vpninfo = new VpnInfo(QStringLiteral("AnyConnect-compatible OpenConnect GUI VPN Agent"), ss, this);
+        vpninfo = new VpnInfo(QStringLiteral("兼容AnyConnect-智瞰VPN"), ss, this);
     } catch (std::exception& ex) {
         QMessageBox::information(this,
             qApp->applicationName(),
-            tr("There was an issue initializing the VPN (%1).").arg(ex.what()));
+            tr("VPN 初始化失败 (%1).").arg(ex.what()));
         goto fail;
     }
 
@@ -840,7 +840,7 @@ void MainWindow::on_connectClicked()
     if (this->cmd_fd == INVALID_SOCKET) {
         QMessageBox::information(this,
             qApp->applicationName(),
-            tr("There was an issue establishing IPC with openconnect; try restarting the application."));
+            tr("无法与VPN服务建立通信；请尝试重启软件。"));
         goto fail;
     }
 
@@ -864,11 +864,11 @@ void MainWindow::on_connectClicked()
                     str += ":" + QString::number(proxies.at(0).port());
                 }
 
-                Logger::instance().addMessage(tr("Setting proxy to: %1").arg(str));
+                Logger::instance().addMessage(tr("设置代理为: %1").arg(str));
 
                 int ret = openconnect_set_http_proxy(vpninfo->vpninfo, str.toUtf8().data());
                 if (ret != 0) {
-                    Logger::instance().addMessage(tr("Unexpected error setting proxy"));
+                    Logger::instance().addMessage(tr("设置代理失败：未知错误"));
                 }
             }
         }
@@ -908,12 +908,12 @@ void MainWindow::request_update_stats()
     if (this->cmd_fd != INVALID_SOCKET) {
         int ret = pipe_write(this->cmd_fd, &cmd, 1);
         if (ret < 0) {
-            Logger::instance().addMessage(QObject::tr("update_stats: IPC error: %1").arg(net_errno));
+            Logger::instance().addMessage(QObject::tr("更新统计数据时发生进程间通信 (IPC) 错误： %1").arg(net_errno));
             if (this->timer->isActive())
                 this->timer->stop();
         }
     } else {
-        Logger::instance().addMessage(QObject::tr("update_stats: invalid socket"));
+        Logger::instance().addMessage(QObject::tr("更新统计数据：套接字无效"));
         if (this->timer->isActive())
             this->timer->stop();
     }
@@ -1089,10 +1089,10 @@ void MainWindow::on_actionEditSelectedProfile_triggered()
 void MainWindow::on_actionRemoveSelectedProfile_triggered()
 {
     QMessageBox mbox;
-    mbox.setText(tr("Are you sure you want to remove '%1' host?").arg(ui->serverList->currentText()));
+    mbox.setText(tr("确定删除 '%1'?").arg(ui->serverList->currentText()));
     mbox.setStandardButtons(QMessageBox::Cancel | QMessageBox::Ok);
     mbox.setDefaultButton(QMessageBox::Cancel);
-    mbox.addButton(tr("Remove"), QMessageBox::DestructiveRole);
+    mbox.addButton(tr("删除"), QMessageBox::DestructiveRole);
 
     if (mbox.exec() == QMessageBox::Ok) {
         OcSettings settings;
@@ -1113,17 +1113,17 @@ void MainWindow::on_actionAbout_triggered()
     QString txt = QLatin1String("<h2>") + QLatin1String(PRODUCT_NAME_LONG) + QLatin1String("</h2>");
 
     if (QLatin1String(PROJECT_VERSION).contains(QLatin1String("-g"))) {
-        txt += tr("Development snapshot <i>%1</i> (%2 bit)<br>").arg(PROJECT_VERSION).arg(QSysInfo::buildCpuArchitecture() == QLatin1String("i386") ? 32 : 64);
-        txt += tr("Built at <i>%1</i><br>").arg(QLatin1String(appBuildOn));
+        txt += tr("开发快照 <i>%1</i> (%2 bit)<br>").arg(PROJECT_VERSION).arg(QSysInfo::buildCpuArchitecture() == QLatin1String("i386") ? 32 : 64);
+        txt += tr("编译在 <i>%1</i><br>").arg(QLatin1String(appBuildOn));
     } else {
-        txt += tr("Version <i>%1</i> (%2 bit)<br>").arg(PROJECT_VERSION).arg(QSysInfo::buildCpuArchitecture() == QLatin1String("i386") ? 32 : 64);
+        txt += tr("版本 <i>%1</i> (%2 bit)<br>").arg(PROJECT_VERSION).arg(QSysInfo::buildCpuArchitecture() == QLatin1String("i386") ? 32 : 64);
     }
 
-    txt += tr("<br><i>%1</i> is free software developed by the OpenConnect GUI project community. See the license for more information.<br>").arg(APP_NAME);
+    txt += tr("<br><i>%1</i> 是智瞰数科出品.<br>").arg(APP_NAME);
 
-    txt += tr("<br>Visit <a href=\"%1\">our community web site</a> for more information, to contribute, file a bug or suggest a new feature.<br>").arg(CMAKE_PROJECT_HOMEPAGE_URL);
+    //txt += tr("<br>Visit <a href=\"%1\">our community web site</a> for more information, to contribute, file a bug or suggest a new feature.<br>").arg(CMAKE_PROJECT_HOMEPAGE_URL);
 
-    QMessageBox::about(this, QLatin1String("About"), txt);
+    QMessageBox::about(this, QLatin1String("关于"), txt);
 }
 
 void MainWindow::checkForUpdatesDialog()
@@ -1144,34 +1144,34 @@ void MainWindow::checkForUpdatesDialog()
     mbox.setDefaultButton(QMessageBox::Ok);
     QString txt = QLatin1String("<h2>") + QLatin1String(PRODUCT_NAME_LONG) + QLatin1String("</h2>");
 
-    txt += tr("<h3>Current version</h3>");
+    txt += tr("<h3>当前版本</h3>");
     if (QLatin1String(PROJECT_VERSION).contains(QLatin1String("-g"))) {
-        txt += tr("Development snapshot <i>%1</i> (%2 bit)<br>").arg(PROJECT_VERSION).arg(QSysInfo::buildCpuArchitecture() == QLatin1String("i386") ? 32 : 64);
-        txt += tr("Built at <i>%1</i><br>").arg(QLatin1String(appBuildOn));
+        txt += tr("开发快照 <i>%1</i> (%2 bit)<br>").arg(PROJECT_VERSION).arg(QSysInfo::buildCpuArchitecture() == QLatin1String("i386") ? 32 : 64);
+        txt += tr("编译在 <i>%1</i><br>").arg(QLatin1String(appBuildOn));
     } else {
-        txt += tr("Version <i>%1</i> (%2 bit)<br>").arg(PROJECT_VERSION).arg(QSysInfo::buildCpuArchitecture() == QLatin1String("i386") ? 32 : 64);
+        txt += tr("版本 <i>%1</i> (%2 bit)<br>").arg(PROJECT_VERSION).arg(QSysInfo::buildCpuArchitecture() == QLatin1String("i386") ? 32 : 64);
     }
 
-    txt += tr("<h3>Latest version</h3>");
+    txt += tr("<h3>最新版本</h3>");
     if (latest_version.isEmpty()) {
         txt += tr("N/A<br>");
     } else {
         if (latest_version.compare(INTERNAL_PROJECT_VERSION) != 0) {
-            txt += tr("Latest version is <i>%1</i><br><br>").arg(latest_version);
+            txt += tr("最新版本 <i>%1</i><br><br>").arg(latest_version);
 #ifdef Q_OS_WIN
             mbox.addButton(tr("Download %1").arg(latest_version), QMessageBox::AcceptRole);
             getUri = QUrl(tr(APP_DOWNLOAD_WIN_URL).arg(latest_version));
 #else
-            mbox.addButton(tr("Get %1").arg(latest_version), QMessageBox::AcceptRole);
+            mbox.addButton(tr("获取 %1").arg(latest_version), QMessageBox::AcceptRole);
             getUri = QUrl(APP_RELEASES_URL);
 #endif
         } else {
-            txt += tr("You are up to date. Latest version is %1.<br>").arg(latest_version);
+            txt += tr("已是最新版本： %1.<br>").arg(latest_version);
         }
     }
 
     mbox.setInformativeText(txt);
-    mbox.setWindowTitle(QLatin1String("Check for updates"));
+    mbox.setWindowTitle(QLatin1String("检查更新"));
 
     if (mbox.exec() == QMessageBox::Ok) {
         return;
@@ -1187,7 +1187,7 @@ void MainWindow::on_actionCheckForUpdates_triggered()
     if (latest_version.isEmpty() && downloadProgress == nullptr) {
         const unsigned progress_max_value = 100;
 
-        downloadProgress = new QProgressDialog("Checking for latest version...", "Abort", 0, progress_max_value, this);
+        downloadProgress = new QProgressDialog("检查最新版本...", "关于", 0, progress_max_value, this);
 
         // ensure that this is called when download is complete
         connect(this, &MainWindow::version_download_completed_sig,
@@ -1211,19 +1211,17 @@ void MainWindow::on_actionLicense_triggered()
 {
     QString txt = QLatin1String("<h2>") + QLatin1String(PRODUCT_NAME_LONG) + QLatin1String("</h2>");
 
-    txt += tr("<br><br>Based on");
-    txt += tr("<br>- <a href=\"https://www.infradead.org/openconnect\">OpenConnect</a> ") + QLatin1String(openconnect_get_version());
-    txt += tr("<br>- <a href=\"https://www.gnutls.org\">GnuTLS</a> v") + QLatin1String(gnutls_check_version(nullptr));
-    txt += tr("<br>- <a href=\"https://github.com/gabime/spdlog\">spdlog</a> v%1.%2.%3").arg(QString::number(SPDLOG_VER_MAJOR)).arg(QString::number(SPDLOG_VER_MINOR)).arg(QString::number(SPDLOG_VER_PATCH));
-    txt += tr("<br>- <a href=\"https://www.qt.io\">Qt</a> v%1").arg(QT_VERSION_STR);
+    txt += tr("<br><br>基于");
+    txt += tr("<br>- <a href=\"https://www.5151ml.com/\">智瞰数科</a> ") + QLatin1String(openconnect_get_version());
+    //txt += tr("<br>- <a href=\"https://www.gnutls.org\">GnuTLS</a> v") + QLatin1String(gnutls_check_version(nullptr));
+    //txt += tr("<br>- <a href=\"https://github.com/gabime/spdlog\">spdlog</a> v%1.%2.%3").arg(QString::number(SPDLOG_VER_MAJOR)).arg(QString::number(SPDLOG_VER_MINOR)).arg(QString::number(SPDLOG_VER_PATCH));
+    //txt += tr("<br>- <a href=\"https://www.qt.io\">Qt</a> v%1").arg(QT_VERSION_STR);
 
     txt += tr("<br><br>%1<br>").arg(PRODUCT_NAME_COPYRIGHT_FULL);
-    txt += tr("<br><i>%1</i> comes with ABSOLUTELY NO WARRANTY. This is free software, "
-              "and you are welcome to redistribute it under the conditions "
-              "of the GNU General Public License version 2.<br>")
+    txt += tr("<br><i>%1</i> 版权归属智瞰数科<br>")
                .arg(APP_NAME);
 
-    QMessageBox::information(this, QLatin1String("License"), txt);
+    QMessageBox::information(this, QLatin1String("许可"), txt);
 }
 
 void MainWindow::on_actionWebSite_triggered()

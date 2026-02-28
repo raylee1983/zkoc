@@ -19,7 +19,7 @@ NewProfileDialog::NewProfileDialog(QWidget* parent)
     VpnProtocolModel* model = new VpnProtocolModel(this);
     ui->protocolComboBox->setModel(model);
 
-    ui->buttonBox->button(QDialogButtonBox::SaveAll)->setText(tr("Save && Connect"));
+    ui->buttonBox->button(QDialogButtonBox::SaveAll)->setText(tr("保存并连接"));
     ui->buttonBox->button(QDialogButtonBox::SaveAll)->setDefault(true);
 
     ui->buttonBox->button(QDialogButtonBox::Save)->setEnabled(false);

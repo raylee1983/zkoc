@@ -61,8 +61,8 @@ static int import_Key(QWidget* w, gnutls_x509_privkey_t* privkey,
     if (ret == GNUTLS_E_DECRYPTION_FAILED && w != NULL) {
         bool ok;
         QString text = QInputDialog::getText(w,
-            QLatin1String("This file requires a password"),
-            QLatin1String("Please enter your password"),
+            QLatin1String("该文件已加密，请输入密码"),
+            QLatin1String("请输入密码"),
             QLineEdit::Password, QString(), &ok);
         if (ok == false) {
             ret = -1;

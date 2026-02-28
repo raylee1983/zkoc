@@ -93,17 +93,17 @@ int pin_callback(void* userdata, int attempt, const char* token_url,
     const char* token_label, unsigned flags, char* pin,
     size_t pin_max)
 {
-    QString type = QObject::tr("user");
+    QString type = QObject::tr("用户");
     if (flags & GNUTLS_PIN_SO) {
-        type = QObject::tr("security officer");
+        type = QObject::tr("安全官");
     }
 
-    QString outtext = QObject::tr("Please enter the %1 PIN for %2.").arg(type).arg(token_label);
+    QString outtext = QObject::tr("请输入 %1 PIN for %2.").arg(type).arg(token_label);
     if (flags & GNUTLS_PKCS11_PIN_FINAL_TRY) {
-        outtext += QObject::tr(" This is the FINAL try!");
+        outtext += QObject::tr(" 最后一次尝试!");
     }
     if (flags & GNUTLS_PKCS11_PIN_COUNT_LOW) {
-        outtext += QObject::tr(" Only few tries before token lock!");
+        outtext += QObject::tr(" 警告：重试次数有限，令牌即将锁定!");
     }
 
     MainWindow* w = (MainWindow*)userdata;
@@ -178,13 +178,11 @@ int main(int argc, char* argv[])
 
     QCommandLineParser parser;
     parser.setApplicationDescription(
-        QObject::tr("OpenConnect is a VPN client, that utilizes TLS and DTLS "
-                    "for secure session establishment, and is compatible "
-                    "with many VPN protocols."));
+        QObject::tr("智瞰VPN 是一款 VPN 客户端，利用 TLS 和 DTLS 协议建立安全会话，并兼容多种 VPN 协议。"));
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addOption({ { "s", "server" },
-        QObject::tr("auto-connect to existing profile <name>"),
+        QObject::tr("自动连接到 <name>"),
         QObject::tr("name")
 
     });

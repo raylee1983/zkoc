@@ -46,7 +46,7 @@ unsigned VpnProtocolModel::findIndex(const QString name)
         }
     }
 
-    Logger::instance().addMessage(QObject::tr("Unknown protocol: ") + name);
+    Logger::instance().addMessage(QObject::tr("未知协议: ") + name);
     return 0;
 }
 

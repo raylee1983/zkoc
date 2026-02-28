@@ -36,8 +36,8 @@ build_script:
 
 test: off
 artifacts:
-- path: build/openconnect-gui*.exe
+- path: build/zkvpn-gui*.exe
   name: 'Installer'
-- path: build/openconnect-gui*.exe.sha512
+- path: build/zkvpn-gui*.exe.sha512
   name: 'Installer - sha512 hash'
 
