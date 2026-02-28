@@ -1,0 +1,81 @@
+name: Build Windows Installer
+
+on:
+  push:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup Qt (via aqtinstall)
+      run: |
+        pip install aqtinstall
+        # 安装 Qt 6.8.1 (根据你代码需要的版本调整，通常 6.x 或 5.15)
+        # 这里假设项目需要 Qt6，如果报错可尝试 qt5.15.2
+        python -m aqt install-qt windows desktop 6.8.1 win64_msvc2022_64 --modules qtstatemachine
+        # 设置环境变量
+        echo "C:\Qt\6.8.1\msvc2022_64\bin" >> $GITHUB_PATH
+        echo "C:\Qt\6.8.1\msvc2022_64" >> $GITHUB_PATH
+
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+
+    - name: Configure CMake
+      run: |
+        cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="C:\Qt\6.8.1\msvc2022_64"
+        # 如果缺少 openconnect 库，这里可能会报错。
+        # 解决方案：在 GitHub Actions 中通过 vcpkg 安装依赖
+        # 下面尝试通过 vcpkg 安装 openconnect
+      continue-on-error: true # 先尝试直接配置，如果失败则走下面的 vcpkg 流程
+
+    - name: Install Dependencies via Vcpkg (Fallback)
+      if: failure()
+      run: |
+        git clone https://github.com/microsoft/vcpkg.git
+        cd vcpkg
+        .\bootstrap-vcpkg.bat
+        .\vcpkg integrate install
+        .\vcpkg install openconnect:x64-windows stoken:x64-windows
+        # 重新配置 CMake，指向 vcpkg
+        cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake"
+
+    - name: Build Project
+      run: |
+        cmake --build build --config Release --parallel
+
+    - name: Deploy Qt Libraries
+      run: |
+        # 复制 exe 到发布目录
+        mkdir deploy
+        copy build\Release\openconnect-gui.exe deploy\
+        # 自动部署 Qt 依赖 dll
+        windeployqt deploy\openconnect-gui.exe --release --no-compiler-runtime --no-system-d3d-compiler
+        
+        # 如果使用了 vcpkg，还需要复制 vcpkg 安装的 dll (openconnect, stoken 等)
+        # 简单粗暴法：把 vcpkg installed 目录下的 bin 全部拷过去 (生产环境建议只拷需要的)
+        if exist "vcpkg\installed\x64-windows\bin" (
+          copy vcpkg\installed\x64-windows\bin\*.dll deploy\
+        )
+
+    - name: Sign Executable (Optional)
+      if: env.SIGNING_CERT != ''
+      run: |
+        # 如果有证书，在这里调用 signtool
+        echo "Signing not configured in this template without secrets."
+      env:
+        SIGNING_CERT: ${{ secrets.SIGNING_CERT }}
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: OpenConnect-GUI-CN-Windows
+        path: deploy/
+        retention-days: 30
