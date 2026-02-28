@@ -22,14 +22,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install aqtinstall
         
-        # 使用清华镜像源
-        $MIRROR = "https://mirrors.tuna.tsinghua.edu.cn/qt"
+        # 【关键修改】切换为阿里云镜像源 (Aliyun)，避开清华源的损坏文件
+        $MIRROR = "https://mirrors.aliyun.com/qt"
         
-        Write-Host "Installing Qt 6.5.3 (MSVC 2019 64-bit)..."
-        # 安装核心库，不指定额外模块以避免 checksum 错误
+        Write-Host "Installing Qt 6.5.3 (MSVC 2019 64-bit) from Aliyun..."
+        
+        # 添加 --noarchives 参数有时能绕过某些校验问题，但这里主要靠换源
+        # 如果依然报错，我们可以尝试不安装 qttools (OpenConnect GUI 运行时通常不需要它)
+        # 但首先尝试完整安装
         python -m aqt install-qt windows desktop 6.5.3 win64_msvc2019_64 --base $MIRROR
         
-        # 设置环境变量
         $QtDir = "C:\Qt\6.5.3\msvc2019_64"
         echo "$QtDir\bin" >> $env:GITHUB_PATH
         echo "CMAKE_PREFIX_PATH=$QtDir" >> $env:GITHUB_ENV
@@ -38,7 +40,7 @@ jobs:
             Write-Error "Qt installation failed!"
             exit 1
         }
-        Write-Host "Qt installed successfully."
+        Write-Host "Qt installed successfully from Aliyun."
       shell: pwsh
 
     # 3. 配置 MSVC 编译器 (使用 v142 工具集匹配 Qt 6.5.3)
